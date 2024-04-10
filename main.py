@@ -11,19 +11,23 @@ class MyClient:
         print(f"indexes: {[x for x in self.collection.list_indexes()]}")
 
     def export_indexes(self):
-        indexes_cursor = self.collection.list_indexes()
+        indexes_cursor = self.collection.index_information()
         index_models = []
-        for index in indexes_cursor:
-            if index["name"] != "_id_": # ignore _id_ index cuz its there already
-                if 'weights' in index:
-                    index_model = IndexModel(index["key"], name=index["name"], weights=index["weights"])
+        for index, index_info in indexes_cursor.items():
+            if index != "_id_": # ignore _id_ index cuz its there already
+                print(f"Creating index model for: {index}")
+                index_info["key"] = [(x[0], int(x[1])) for x in index_info["key"]]
+                if 'weights' in index_info:
+                    index_model = IndexModel(index_info["key"], name=index, weights=index_info["weights"])
                 else:
-                    index_model = IndexModel(index["key"], name=index["name"], unique=index.get("unique", False))
+                    index_model = IndexModel(index_info["key"], name=index, unique=index_info.get("unique", False))
                 index_models.append(index_model)
         return index_models
 
     def apply_indexes(self, index_models):
+        print("Applying indexes")
         self.collection.create_indexes(index_models)
+        print("Indexes applied")
 
 def main(args):
     src_mongodb_client, dest_mongodb_client = [MyClient(args.src, args.srcdb, args.srccoll),
