@@ -1,5 +1,6 @@
 from pymongo import MongoClient, IndexModel
 import argparse
+from datetime import datetime
 
 class MyClient:
     def __init__(self, conn_str, db_name, coll_name):
@@ -26,8 +27,10 @@ class MyClient:
 
     def apply_indexes(self, index_models):
         print("Applying indexes")
+        start_t = datetime.now()
         self.collection.create_indexes(index_models)
-        print("Indexes applied")
+        end_t = datetime.now()
+        print(f"Indexes applied, time taken: {(end_t-start_t).total_seconds()}")
 
 def main(args):
     src_mongodb_client, dest_mongodb_client = [MyClient(args.src, args.srcdb, args.srccoll),
