@@ -2,7 +2,7 @@ from pymongo import MongoClient, IndexModel
 import argparse
 from datetime import datetime
 
-class MyClient:
+class IndexClient:
     def __init__(self, conn_str, db_name, coll_name):
         self.mongodb_client = MongoClient(conn_str)
         self.db = self.mongodb_client[db_name]
@@ -33,8 +33,8 @@ class MyClient:
         print(f"Indexes applied, time taken: {(end_t-start_t).total_seconds()}")
 
 def main(args):
-    src_mongodb_client, dest_mongodb_client = [MyClient(args.src, args.srcdb, args.srccoll),
-                                               MyClient(args.dest, args.destdb, args.destcoll)]
+    src_mongodb_client, dest_mongodb_client = [IndexClient(args.src, args.srcdb, args.srccoll),
+                                               IndexClient(args.dest, args.destdb, args.destcoll)]
 
     source_index_models = src_mongodb_client.export_indexes()
     dest_mongodb_client.apply_indexes(source_index_models)
